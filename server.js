@@ -52,7 +52,7 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const sendEmail = require("./Utils/sendEmail");
 const { v4: uuidv4 } = require("uuid");
-YOUR_DOMAIN="http://localhost:3000"
+YOUR_DOMAIN="https://microsoftsupplier.com"
 const app = express();
 // app.use(cors());
 app.use(express.static('public'));
