@@ -47,14 +47,16 @@
  
 require("dotenv").config();
 const express = require("express");
-const stripe = require("stripe")(process.env.STRIPE_PRIVATE_KEY);
+const stripe = require("stripe")("sk_test_51Na06XDvCe1ScO91dDsIfQdnq9oEMkZ60igWraJFBVS7hIglJPfixy5LtasIT2lDzold4pQO7TYWjVUErPmFMvFC007Keokkxl");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const sendEmail = require("./Utils/sendEmail");
 const { v4: uuidv4 } = require("uuid");
-
+YOUR_DOMAIN="http://localhost:3000"
 const app = express();
-app.use(cors());
+// app.use(cors());
+app.use(express.static('public'));
+
 app.use(express.json());
 app.use(bodyParser.json());
 
@@ -63,33 +65,66 @@ const calculateOrderAmount = (price) => {
   return price * 100;
 };
 
-app.post("/create-payment-intent", async (req, res) => {
-  const { items, price } = req.body;
+// app.post("/create-payment-intent", async (req, res) => {
+//   const { items, price } = req.body;
 
-  // Generate a unique identifier using uuid
-  const uniqueId = uuidv4();
+//   // Generate a unique identifier using uuid
+//   const uniqueId = uuidv4();
 
-  const paymentIntent = await stripe.paymentIntents.create({
-    amount: calculateOrderAmount(price),
-    currency: "eur",
-    automatic_payment_methods: {
-      enabled: true,
-    },
-    items,
-    metadata: {
-      orderId: uniqueId, // Attach the unique identifier as m
-    },
-  });
+//   const paymentIntent = await stripe.paymentIntents.create({
+//     amount: calculateOrderAmount(price),
+//     currency: "eur",
+//     automatic_payment_methods: {
+//       enabled: true,
+//     },
+//     items,
+//     metadata: {
+//       orderId: uniqueId, // Attach the unique identifier as m
+//     },
+//   });
 
-  res.send({
-    clientSecret: paymentIntent.client_secret,
-  });
-});
+//   res.send({
+//     clientSecret: paymentIntent.client_secret,
+//   });
+// });
 
 app.get("/", (req, res) => {
   res.send("welcome to microsoftsupplier website");
 });
 
+app.post('/create-checkout-session', async (req, res) => {
+const cart  = req.body.cart;
+const useremail  = req.body.useremail;
+const disc = parseFloat(req.body.foundUser);
+console.log(disc)
+const lineItems = cart?.map((product) => {
+  const priceCopy = product.priceWVat.toFixed(2)
+console.log(priceCopy);
+
+  return {
+    price_data: {
+      currency: "eur", // Adjust the currency based on your requirements
+      product_data: {
+        name: product.name,
+        images: [product.imageUrl], // Assuming you have an imageUrl property in your product objects
+      },
+      unit_amount:  priceCopy * 100 // Convert price to cents
+    },
+    quantity: product.calculatequantity || 1, // You might have a quantity property in your product objects
+  };
+});
+
+
+  const session = await stripe.checkout.sessions.create({
+    line_items: lineItems,
+    mode: 'payment',
+    customer_email:useremail,
+    success_url:`${YOUR_DOMAIN}/success` ,
+    cancel_url:`${YOUR_DOMAIN}?canceled=true` ,
+  });
+
+  res.status(200).send(session.url);
+});
 
 
 
