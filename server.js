@@ -76,7 +76,7 @@ const cart  = req.body.cart;
 const useremail  = req.body.useremail;
 
 const lineItems = cart?.map((product) => {
-  const priceCopy = product.priceWVat.toFixed(2)
+  const priceCopy = product?.parseFloat(priceWVat).toFixed(2)
 console.log(priceCopy);
 
   return {
