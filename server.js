@@ -54,7 +54,7 @@ const sendEmail = require("./Utils/sendEmail");
 const { v4: uuidv4 } = require("uuid");
 YOUR_DOMAIN="https://microsoftsupplier.com"
 const app = express();
-// app.use(cors());
+app.use(cors());
 app.use(express.static('public'));
 
 app.use(express.json());
@@ -65,28 +65,7 @@ const calculateOrderAmount = (price) => {
   return price * 100;
 };
 
-// app.post("/create-payment-intent", async (req, res) => {
-//   const { items, price } = req.body;
 
-//   // Generate a unique identifier using uuid
-//   const uniqueId = uuidv4();
-
-//   const paymentIntent = await stripe.paymentIntents.create({
-//     amount: calculateOrderAmount(price),
-//     currency: "eur",
-//     automatic_payment_methods: {
-//       enabled: true,
-//     },
-//     items,
-//     metadata: {
-//       orderId: uniqueId, // Attach the unique identifier as m
-//     },
-//   });
-
-//   res.send({
-//     clientSecret: paymentIntent.client_secret,
-//   });
-// });
 
 app.get("/", (req, res) => {
   res.send("welcome to microsoftsupplier website");
