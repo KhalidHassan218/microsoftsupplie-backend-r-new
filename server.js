@@ -74,10 +74,12 @@ app.get("/", (req, res) => {
 app.post('/create-checkout-session', async (req, res) => {
 const cart  = req.body.cart;
 const useremail  = req.body.useremail;
+const cat  = req.body.foundUser;
 
 const lineItems = cart?.map((product) => {
-  const priceCopy = product?.parseFloat(priceWVat).toFixed(2)
-console.log(priceCopy);
+  let priceWVat = parseFloat(product?.priceWVat)
+  let b2bpriceWVat = parseFloat(product?.b2bpriceWVat)
+  const priceCopy = cat === "B2B" ? b2bpriceWVat.toFixed(2) : priceWVat.toFixed(2)
 
   return {
     price_data: {
