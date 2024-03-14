@@ -74,8 +74,7 @@ app.get("/", (req, res) => {
 app.post('/create-checkout-session', async (req, res) => {
 const cart  = req.body.cart;
 const useremail  = req.body.useremail;
-const disc = parseFloat(req.body.foundUser);
-console.log(disc)
+
 const lineItems = cart?.map((product) => {
   const priceCopy = product.priceWVat.toFixed(2)
 console.log(priceCopy);
