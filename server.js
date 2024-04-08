@@ -95,9 +95,13 @@ const lineItems = cart?.map((product) => {
   };
 });
 
+const customer = await stripe.customers.create({
+  email:useremail
+})
 
   const session = await stripe.checkout.sessions.create({
     line_items: lineItems,
+    customer: customer.id,
     mode: 'payment',
     customer_email:useremail,
     success_url:`${YOUR_DOMAIN}/success` ,
