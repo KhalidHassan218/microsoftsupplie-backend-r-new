@@ -96,13 +96,18 @@ const lineItems = cart?.map((product) => {
 });
 
 
-  const session = await stripe.checkout.sessions.create({
-    line_items: lineItems,
-    mode: 'payment',
-    customer_email:useremail,
-    success_url:`${YOUR_DOMAIN}/success` ,
-    cancel_url:`${YOUR_DOMAIN}?canceled=true` ,
-  });
+const sessionData = {
+  line_items: lineItems,
+  mode: 'payment',
+  success_url: `${YOUR_DOMAIN}/success`,
+  cancel_url: `${YOUR_DOMAIN}?canceled=true`,
+};
+
+if (useremail) {
+  sessionData.customer_email = useremail;
+}
+
+const session = await stripe.checkout.sessions.create(sessionData);
 
   res.status(200).send(session.url);
 });
