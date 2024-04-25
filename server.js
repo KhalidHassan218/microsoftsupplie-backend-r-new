@@ -48,7 +48,7 @@
 require("dotenv").config();
 const express = require("express");
 // const stripe = require("stripe")("sk_test_51Na06XDvCe1ScO91dDsIfQdnq9oEMkZ60igWraJFBVS7hIglJPfixy5LtasIT2lDzold4pQO7TYWjVUErPmFMvFC007Keokkxl");
-const stripe = require("stripe")("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");
+const stripe = require("stripe")("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");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const sendEmail = require("./Utils/sendEmail");
