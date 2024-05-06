@@ -73,44 +73,65 @@ app.get("/", (req, res) => {
 });
 
 app.post('/create-checkout-session', async (req, res) => {
-const cart  = req.body.cart;
-const useremail  = req.body.useremail;
-const cat  = req.body.foundUser;
+  const cart  = req.body.cart;
+  const useremail  = req.body.useremail;
+  const cat  = req.body.foundUser;
 
-const lineItems = cart?.map((product) => {
-  let priceWVat = parseFloat(product?.priceWVat)
-  let b2bpriceWVat = parseFloat(product?.b2bpriceWVat)
-  const priceCopy = cat === "B2B" ? b2bpriceWVat.toFixed(2) : priceWVat.toFixed(2)
+  const lineItems = cart?.map((product) => {
+    let priceWVat = parseFloat(product?.priceWVat);
+    let b2bpriceWVat = parseFloat(product?.b2bpriceWVat);
+    const priceCopy = cat === "B2B" ? b2bpriceWVat.toFixed(2) : priceWVat.toFixed(2);
 
-  return {
-    price_data: {
-      currency: "eur", // Adjust the currency based on your requirements
-      product_data: {
-        name: product.name,
-        images: [product.imageUrl], // Assuming you have an imageUrl property in your product objects
+    let customFields = null;
+    let description = '';
+console.log(product.selectedLangObj);
+    if (product.selectedLangObj.id) {
+      customFields = {
+        PN: product.selectedLangObj.PN, // Assuming PN is a custom field for the product
+        language: product.selectedLangObj.lang // Assuming language is a custom field for the product
+      };
+      description = `Language: ${product.selectedLangObj.lang}  PN: ${product.selectedLangObj.PN}`;
+    }else{
+      customFields = {
+        language: `Language: English` // Assuming language is a custom field for the product
+      };
+      description = `Language: English`;
+
+    }
+
+    return {
+      price_data: {
+        currency: "eur", // Adjust the currency based on your requirements
+        product_data: {
+          name: product.name,
+          images: [product.imageUrl], // Assuming you have an imageUrl property in your product objects
+          metadata: customFields, // Add custom fields as metadata to the product_data
+          description: description
+        },
+        unit_amount:  priceCopy * 100 // Convert price to cents
       },
-      unit_amount:  priceCopy * 100 // Convert price to cents
-    },
-    quantity: product.calculatequantity || 1, // You might have a quantity property in your product objects
+      quantity: product.calculatequantity || 1, // You might have a quantity property in your product objects
+    };
+  });
+
+  const sessionData = {
+    line_items: lineItems,
+    mode: 'payment',
+    success_url: `${YOUR_DOMAIN}/success`,
+    cancel_url: `${YOUR_DOMAIN}?canceled=true`,
   };
-});
 
+  if (useremail) {
+    sessionData.customer_email = useremail;
+  }
 
-const sessionData = {
-  line_items: lineItems,
-  mode: 'payment',
-  success_url: `${YOUR_DOMAIN}/success`,
-  cancel_url: `${YOUR_DOMAIN}?canceled=true`,
-};
-
-if (useremail) {
-  sessionData.customer_email = useremail;
-}
-
-const session = await stripe.checkout.sessions.create(sessionData);
+  const session = await stripe.checkout.sessions.create(sessionData);
 
   res.status(200).send(session.url);
 });
+
+
+
 
 
 
